@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="430" viewBox="0 0 760 430" font-family="SimSun, serif" font-size="13">
+<rect x="0" y="0" width="760" height="430" fill="white"/>
+<defs><marker id="ar" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0,0 L9,4 L0,8 z" fill="#333"/></marker></defs>
+<!-- 数据构建层 -->
+<rect x="20" y="20" width="220" height="120" fill="#f5f5f5" stroke="#333"/>
+<text x="130" y="42" text-anchor="middle" font-weight="bold">数据构建模块</text>
+<text x="130" y="66" text-anchor="middle">新闻网页 / 官方 API 爬取</text>
+<text x="130" y="88" text-anchor="middle">规则清洗生成真值 JSON</text>
+<text x="130" y="110" text-anchor="middle">噪声注入与文档级切分</text>
+<!-- 训练层 -->
+<rect x="280" y="20" width="220" height="120" fill="#f5f5f5" stroke="#333"/>
+<text x="390" y="42" text-anchor="middle" font-weight="bold">训练模块</text>
+<text x="390" y="66" text-anchor="middle">Qwen3-0.6B 4bit NF4 基座</text>
+<text x="390" y="88" text-anchor="middle">LoRA 适配器 (r=16)</text>
+<text x="390" y="110" text-anchor="middle">完整样本过滤 + 8bit 优化器</text>
+<!-- 推理服务层 -->
+<rect x="540" y="20" width="200" height="120" fill="#f5f5f5" stroke="#333"/>
+<text x="640" y="42" text-anchor="middle" font-weight="bold">推理服务模块</text>
+<text x="640" y="66" text-anchor="middle">本地 HTTP 服务 (8000)</text>
+<text x="640" y="88" text-anchor="middle">温度 0.1 / 重复惩罚</text>
+<text x="640" y="110" text-anchor="middle">Ollama 对照部署</text>
+<!-- 修复层 -->
+<rect x="280" y="200" width="220" height="100" fill="#f5f5f5" stroke="#333"/>
+<text x="390" y="222" text-anchor="middle" font-weight="bold">输出修复模块</text>
+<text x="390" y="246" text-anchor="middle">JSON 块定位 / 截断补全</text>
+<text x="390" y="268" text-anchor="middle">schema 归一 / 幻觉日期过滤</text>
+<!-- 评测层 -->
+<rect x="540" y="200" width="200" height="100" fill="#f5f5f5" stroke="#333"/>
+<text x="640" y="222" text-anchor="middle" font-weight="bold">评测模块</text>
+<text x="640" y="246" text-anchor="middle">可解析率 / 可用率</text>
+<text x="640" y="268" text-anchor="middle">标题精确率 / 段落 F1</text>
+<!-- 用户 -->
+<rect x="20" y="220" width="220" height="60" fill="#fff" stroke="#333"/>
+<text x="130" y="245" text-anchor="middle" font-weight="bold">调用方</text>
+<text x="130" y="265" text-anchor="middle">脚本 / Notebook / 命令行</text>
+<!-- 箭头 -->
+<line x1="240" y1="80" x2="278" y2="80" stroke="#333" marker-end="url(#ar)"/>
+<text x="259" y="70" text-anchor="middle" font-size="11">train/test</text>
+<line x1="500" y1="80" x2="538" y2="80" stroke="#333" marker-end="url(#ar)"/>
+<text x="519" y="70" text-anchor="middle" font-size="11">适配器</text>
+<line x1="640" y1="140" x2="640" y2="170" stroke="#333"/>
+<line x1="640" y1="170" x2="390" y2="170" stroke="#333"/>
+<line x1="390" y1="170" x2="390" y2="198" stroke="#333" marker-end="url(#ar)"/>
+<text x="515" y="163" text-anchor="middle" font-size="11">原始生成文本</text>
+<line x1="500" y1="250" x2="538" y2="250" stroke="#333" marker-end="url(#ar)"/>
+<text x="519" y="240" text-anchor="middle" font-size="11">干净 JSON</text>
+<line x1="130" y1="220" x2="130" y2="170" stroke="#333"/>
+<line x1="130" y1="170" x2="600" y2="170" stroke="#333" stroke-dasharray="4 3"/>
+<line x1="600" y1="170" x2="600" y2="142" stroke="#333" stroke-dasharray="4 3" marker-end="url(#ar)"/>
+<text x="180" y="163" font-size="11">脏文本请求</text>
+<line x1="280" y1="250" x2="242" y2="250" stroke="#333" marker-end="url(#ar)"/>
+<text x="261" y="240" text-anchor="middle" font-size="11">返回</text>
+<!-- 硬件条 -->
+<rect x="20" y="340" width="720" height="60" fill="#eee" stroke="#333"/>
+<text x="380" y="365" text-anchor="middle" font-weight="bold">硬件与系统软件层</text>
+<text x="380" y="388" text-anchor="middle">RTX 3050 6GB Laptop / Windows 11 / Miniconda(myft) / PyTorch 2.10+cu126 / Unsloth / Ollama</text>
+<line x1="380" y1="300" x2="380" y2="338" stroke="#333" marker-end="url(#ar)"/>
+</svg>

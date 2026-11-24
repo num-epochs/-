@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<style>
+@page { size: A4; margin: 2.5cm 2.2cm; }
+body { font-family: SimSun, serif; font-size: 10.5pt; line-height: 1.55; color: #000; }
+h1.title { font-family: SimHei, sans-serif; font-size: 16pt; text-align: center; line-height: 1.4; margin: 0 0 10pt; }
+.authors { text-align: center; font-size: 11pt; margin-bottom: 4pt; }
+.affil { text-align: center; font-size: 9pt; margin-bottom: 12pt; }
+.abs { font-size: 9.5pt; margin: 0 0 6pt; text-align: justify; }
+.abs b, .kw b { font-family: SimHei, sans-serif; }
+.kw { font-size: 9.5pt; margin: 0 0 4pt; }
+.enblock { font-family: "Times New Roman", serif; font-size: 9.5pt; margin-top: 10pt; }
+.enblock h2 { font-size: 12pt; text-align: center; margin: 6pt 0; }
+.enblock .abs, .enblock .kw { font-size: 9.5pt; }
+h2.sec { font-family: SimHei, sans-serif; font-size: 12pt; margin: 14pt 0 6pt; }
+h3.sub { font-family: SimHei, sans-serif; font-size: 10.5pt; margin: 10pt 0 4pt; }
+p { text-indent: 2em; text-align: justify; margin: 0 0 4pt; }
+p.noindent { text-indent: 0; }
+table { border-collapse: collapse; margin: 6pt auto; font-size: 9.5pt; }
+table, th, td { border: 0.6pt solid #000; }
+th, td { padding: 3pt 8pt; text-align: center; }
+caption { font-size: 9.5pt; font-weight: bold; margin-bottom: 3pt; caption-side: top; }
+figure { margin: 8pt 0; text-align: center; }
+figure img { width: 100%; }
+figcaption { font-size: 9.5pt; font-weight: bold; margin-top: 3pt; }
+.refs { font-size: 9pt; }
+.refs p { text-indent: 0; margin: 0 0 3pt; padding-left: 2em; text-indent: -2em; text-align: left; }
+sup { font-size: 7.5pt; }
+</style>
+</head>
+<body>
+
+<h1 class="title">网页文本数据清洗智能系统与应用：从算法到系统实现</h1>
+<div class="authors">李明睿</div>
+<div class="affil">(南京理工大学 计算机科学与工程学院, 江苏 南京 210094)</div>
+
+<p class="abs"><b>摘　要:</b> 针对网页文本向结构化数据转换过程中噪声混杂、格式不稳定的问题, 设计并实现了一个在消费级显卡上完成训练与部署的数据清洗智能系统. 系统以 Qwen3-0.6B 为基座, 采用 4bit NF4 量化与低秩适配相结合的参数高效微调方案, 仅训练约 1.67% 的参数; 提出完整样本过滤策略, 使模型在训练阶段见到完整的 JSON 收尾序列, 缓解生成长度不足导致的截断问题; 在推理端设计正则修复链, 对截断、编码伪影与格式幻觉进行打捞式修复. 在自建的 265 条"散乱文本—干净 JSON"配对数据集上, 经两轮迭代训练, 256 token 生成预算下模型输出修复后可用率由 @@V1_USABLE@@ 提升至 @@V2_USABLE@@, 训练损失由 1.41 降至 0.86. 实验同时表明, 小模型的语义幻觉仍难以避免, 段落级完整输出受生成预算制约, 需以规则修复与任务约束作为补充. 该系统验证了资源受限条件下迁移学习实现专项能力专精化的可行性.</p>
+<p class="kw"><b>关键词:</b> 数据清洗; 参数高效微调; 低秩适配; 大语言模型; 结构化输出</p>
+<p class="kw"><b>中图法分类号:</b> TP391　　<b>文献标识码:</b> A</p>
+
+<div class="enblock">
+<h2>Web Text Data Cleaning Intelligent System and Application: From Algorithm to System Implementation</h2>
+<p class="abs" style="text-align:center; text-indent:0;">LI Ming-Rui</p>
+<p class="abs" style="text-align:center; text-indent:0;">(School of Computer Science and Engineering, Nanjing University of Science and Technology, Nanjing 210094, China)</p>
+<p class="abs"><b>Abstract:</b> To address the mixed noise and unstable formats in converting web text into structured data, this paper designs and implements a data cleaning intelligent system whose training and deployment are both completed on a consumer-grade GPU. Taking Qwen3-0.6B as the base model, the system adopts a parameter-efficient fine-tuning scheme combining 4-bit NF4 quantization with low-rank adaptation, training only about 1.67% of the parameters. A complete-sample filtering strategy is proposed so that the model observes complete JSON closing sequences during training, alleviating truncation caused by insufficient generation length. At the inference side, a regular-expression repair chain is designed to salvage truncated outputs, encoding artifacts and format hallucinations. On a self-built paired dataset of 265 messy-text–clean-JSON samples, after two iterations of training, the usable rate of repaired outputs under a 256-token generation budget increases from @@V1_USABLE@@ to @@V2_USABLE@@, and the training loss decreases from 1.41 to 0.86. Experiments also show that semantic hallucinations of small models remain unavoidable and paragraph-level completeness is bounded by the generation budget, so rule-based repair and task constraints are necessary complements. The system verifies the feasibility of achieving task specialization through transfer learning under resource-constrained conditions.</p>
+<p class="kw"><b>Key words:</b> data cleaning; parameter-efficient fine-tuning; low-rank adaptation; large language model; structured output</p>
+</div>
+
+<h2 class="sec">1　引言</h2>
+<p>网页是规模最大的公开文本载体, 但原始页面中导航栏、广告、编辑署名、脚注与正文混杂, 直接抓取所得的文本难以被下游程序消费. 将散乱网页文本转换为标题、日期、正文段落、评论等字段齐全的结构化 JSON, 是舆情分析、语料构建与知识库建设的前置环节. 传统做法依赖针对每个站点手工编写的抽取规则, 维护成本高且泛化能力差; 大语言模型为这一任务提供了端到端的可能, 但通用模型直接输出 JSON 时普遍存在格式幻觉与截断现象<sup>[12]</sup>, 在参数量较小的模型上尤为突出.</p>
+<p>对已有模型的二次加工通常有两条路线: 其一是在推理层以提示词引导, 不改动模型本身, 其上限受限于模型原有能力; 其二是微调, 以少量任务数据轻量地优化模型, 使其获得专项能力<sup>[1,2]</sup>. 全参数微调的算力与存储开销随模型规模急剧增长, 个人用户难以承受; 参数高效微调(parameter-efficient fine-tuning, PEFT)通过冻结主体、仅更新少量参数, 在性能与成本之间取得平衡<sup>[1,3]</sup>. 本文关注的问题是: 在成本被极限压缩的条件下——单块 6GB 显存的消费级笔记本显卡、0.6B 参数的基座模型——迁移学习能否在较小模型上实现简单任务的专精化.</p>
+<p>围绕这一问题, 本文完成了一个数据清洗智能系统从算法到系统实现的全流程: 构建带真值的配对数据集, 以 QLoRA 方案完成两轮迭代训练, 设计推理服务与输出修复模块, 并在独立测试集上给出定量评估. 本文的贡献在于: (1) 给出完整样本过滤策略, 从训练数据层面缓解截断性幻觉; (2) 给出与模型解耦的正则修复链, 作为小模型结构化输出的工程兜底; (3) 在真实硬件上报告可复现的训练与评测数据, 并诚实讨论小模型的能力边界.</p>
+
+<h2 class="sec">2　国内外研究现状与发展趋势</h2>
+<p>国外方面, PEFT 已形成添加式、局部式、重参数化式与融合式四大范式<sup>[1]</sup>. 添加式以 Adapter 为代表, 在 Transformer 层间插入小型可训练模块, 仅增 3.6% 参数即可逼近全量微调效果<sup>[4]</sup>; Prefix-Tuning 则优化连续前缀向量, 以 0.1% 的参数量完成生成任务适配<sup>[5]</sup>. 重参数化式的 LoRA 将权重增量约束为低秩矩阵乘积, 在 GPT-3 规模上把可训练参数降低约四个数量级且不引入推理延迟<sup>[2]</sup>; QLoRA 进一步以 4bit NormalFloat 量化冻结基座、双重量化与分页优化器, 使单卡 48GB 即可微调 65B 模型<sup>[3]</sup>. 结构化输出方面, Tam 等人的实证研究表明格式约束会显著影响模型推理表现, 约束越严格性能折损越明显<sup>[12]</sup>, 这解释了小模型在 JSON 任务上的格式幻觉来源之一. 幻觉的成因、分类与缓解手段已有系统综述<sup>[11]</sup>.</p>
+<p>国内方面, 唐岸达等对 PEFT 四大范式的机理、性能与演进做了定量比较, 指出该领域正从单一方法创新走向存储、计算、性能的三元权衡, 并向自动化与软硬件协同的统一框架发展<sup>[1]</sup>; 吴春志等以"是否修改原参数"为维度建立全参数、部分参数、新增参数、无参数四层分类体系, 并从计算视角比较了各类方法的内存与计算量, 给出资源受限条件下的微调策略建议<sup>[6]</sup>. 基座模型方面, Qwen3 系列覆盖 0.6B 至 235B, 以 Apache 2.0 协议开源, 并通过旗舰模型知识蒸馏显著降低小模型的训练成本<sup>[7]</sup>, 为消费级硬件上的微调提供了现实起点.</p>
+<p>相关产品方面, 本地部署工具 Ollama 以 GGUF 量化模型与简洁命令行降低了推理门槛<sup>[14]</sup>, Unsloth 以重写训练内核宣称约两倍提速与显著显存下降<sup>[15]</sup>, 二者与 Hugging Face 生态共同构成了消费级微调的工具链. 但产品调研也发现: 这类工具默认面向"训练—合并—部署"的线性流程, 对量化感知训练所得适配器的合并兼容性缺乏校验, 本文第 8 节报告的合并退化现象即在此流程中暴露, 说明工具链的便利性不能替代对部署路线的实证检验.</p>
+<p>总体趋势是: 方法上从静态固定秩走向动态自适应, 系统上从算法创新走向量化、并行与部署协同<sup>[1]</sup>. 但现有工作多在数据中心级硬件上验证, 面向 6GB 显存笔记本的端到端实践报告仍然缺乏, 本文即在这一场景下展开.</p>
+
+<h2 class="sec">3　系统需要解决的关键问题</h2>
+<p>(1) 显存约束. 基座权重半精度约 1.2GB, 4bit 量化后约 0.4GB, 但训练期激活、梯度与优化器状态仍可能超出 6GB. 需要量化、梯度检查点与低秩适配的组合设计, 并对序列长度与批量做保守配置.</p>
+<p>(2) 截断性幻觉. 训练时若"指令+脏输入+完整 JSON"的总长超过最大序列长度, 样本尾部被截断, 模型从未学习收尾序列, 推理时便表现为输出中途断裂或退化为重复. 这是数据层面的问题, 仅靠推理参数无法根治.</p>
+<p>(3) 格式幻觉与语义幻觉. 小模型会在 JSON 前后混入无关碎块、产生词粘连与不存在的日期. 格式问题可由规则修复, 语义幻觉则受模型容量限制, 只能约束而不能消除<sup>[11,12]</sup>.</p>
+<p>(4) 训练数据真值获取. 清洗任务需要"脏输入—干净输出"配对, 人工标注成本高. 需要一条可复现的自动构建管线, 以确定性规则生成真值并控制噪声类型.</p>
+
+<h2 class="sec">4　系统设计的基本原理</h2>
+<p>系统采用"冻结基座+低秩增量"的重参数化原理. 对预训练权重矩阵 W<sub>0</sub>, LoRA 将增量约束为 ΔW=BA, 其中 B∈R<sup>d×r</sup>、A∈R<sup>r×k</sup>, r 远小于 d、k; 训练只更新 A、B, 推理时可将 BA 合并回 W<sub>0</sub> 而不增加延迟<sup>[2]</sup>. QLoRA 在此基础上把 W<sub>0</sub> 量化为 4bit NF4——一种对正态分布权重信息论最优的数据类型——梯度经量化基座反传至高精度适配器, 从而在极小显存下保持接近 16bit 微调的任务性能<sup>[3]</sup>.</p>
+<p>任务被建模为条件序列生成: 给定指令与散乱文本, 模型自回归地生成目标 JSON. 由于 JSON 是强格式约束, 系统在生成端之外设置独立的修复层, 将"模型能力"与"格式保证"解耦: 模型负责语义抽取, 修复层负责格式兜底. 这一分工与格式约束损害模型能力的实证结论相呼应<sup>[12]</sup>——不强迫模型在生成时兼顾全部格式细节, 而把确定性可解的部分交给规则.</p>
+
+<h2 class="sec">5　关键算法与技术</h2>
+<h3 class="sub">5.1　技术点一: QLoRA 参数高效微调</h3>
+<p>基座为 Qwen3-0.6B<sup>[7]</sup>, 以 4bit NF4 加载; 在注意力与前馈层的 q/k/v/o、gate/up/down 投影上注入 r=16 的 LoRA 适配器, 可训练参数 10,092,544, 占总量 606,142,464 的 1.67%. 优化器采用 8bit AdamW, 学习率 2×10<sup>-4</sup>, 线性衰减; 批量 1、梯度累积 4, 等效批量 4; 启用梯度检查点与梯度显存卸载. 该配置下训练峰值显存保持在 6GB 以内, 单轮 200 步约 15 分钟.</p>
+<h3 class="sub">5.2　技术点二: 完整样本过滤与截断缓解</h3>
+<p>对每条训练样本先 tokenize 计量总长, 仅保留不超过最大序列长度 2048 的样本, 使每个被学习的序列都包含完整 JSON 与收尾符. 234 条训练样本中保留 163 条、丢弃 71 条超长样本. 第二轮训练步数按保留样本量对齐第一轮的训练强度(203 步, 约 5 轮), 并每 50 步保存检查点以供挑选. 该策略直接针对第 3 节问题(2): 第一轮未过滤时模型输出普遍中途截断, 过滤后截断比例显著下降(见第 8 节).</p>
+<h3 class="sub">5.3　技术点三: 推理端正则修复链</h3>
+<p>修复链分五级降级: 先跳过前导碎块、按括号配平定位真正的 JSON 块; 直接解析失败则进入截断修复——补未闭字符串、去尾逗号与悬空键、按栈补全缺失括号; 再做 schema 归一, 校验日期合理性(超出合理年份范围置空)、去 mojibake 与零宽字符、拆分常见词粘连; 全部失败时以正则从原文打捞标题与长段落. 修复链不依赖模型, 任何字符串输入都返回 schema 完整的 dict, 保证下游程序永不因格式崩溃.</p>
+
+<h2 class="sec">6　软件与硬件总体架构</h2>
+<p>硬件为单台笔记本: NVIDIA GeForce RTX 3050 Laptop 6GB、Windows 11. 系统软件自底向上为: Miniconda 虚拟环境 myft(Python 3.12)、PyTorch 2.10+cu126(与驱动 CUDA 上限匹配)、Unsloth 微调框架、Ollama 本地推理引擎. 应用层划分为数据构建、训练、推理服务、输出修复与评测五个模块, 总体架构如图 1 所示. 模型与数据缓存全部置于 D 盘以规避系统盘空间不足; 推理服务以本地 HTTP 接口暴露, 与调用方解耦.</p>
+<figure><img src="报告插图/fig1_arch.svg" alt="系统总体架构"><figcaption>图 1　系统总体架构</figcaption></figure>
+
+<h2 class="sec">7　模块与流程设计</h2>
+<p>数据构建模块以限速爬虫抓取新华社英文、China Daily、Sixth Tone 三个新闻站的整页可见文本作为脏输入, 以确定性规则(标题取 h1/og:title、正文取容器内段落、剔除导航与重复行)生成真值; Hacker News 与 Stack Exchange 经官方 API 获取结构化真值, 去标签扁平文本作为脏输入. 约三分之一样本注入可控噪声(多余空行、行尾空格、重复行、mojibake、零宽字符), 并记录噪声类型. 共得 265 条配对样本, 按文档级切分为训练 234、测试 31, 同文档的增强样本不跨集合, 避免泄漏. 流程如图 2 所示.</p>
+<figure><img src="报告插图/fig2_flow.svg" alt="模块流程"><figcaption>图 2　清洗任务模块流程</figcaption></figure>
+<p>数据质量方面, 真值由确定性规则生成而非人工标注, 其定位是"规则清洗器"的行为基线: 标题与正文容器抽取在抽检中稳定, 但个别页面残留导航句、副标题漏抽的情况仍存在, 这构成模型学习的上限噪声. 噪声注入类型被显式记录, 便于按噪声类别做错误分析. 许可方面, 新闻类内容版权属原媒体, 仅用于个人学习研究并保留出处; Hacker News 与 Stack Exchange 内容分别遵循 CC BY 4.0 与 CC BY-SA 4.0, 数据集若公开分享应仅保留后者. 这些约束在数据构建模块中以字段级元数据落实.</p>
+<p>训练模块在 Jupyter Notebook 中执行, 经历两轮迭代: 第一轮 200 步、未过滤超长样本, 平均损失 1.41, 输出语义初步激活但格式与收尾问题突出; 第二轮启用完整样本过滤, 203 步, 末端损失降至 0.86. 推理服务模块加载适配器, 温度 0.1、3-gram 重复惩罚; 评测时生成长度上限取 256 token 以兼顾 JSON 目标长度与边缘部署时延, 超出部分交由修复链兜底; 修复模块内置于服务, 调用方一次请求即得干净 JSON. 评测模块在测试集上逐条计算直接可解析率、修复后可用率、标题精确匹配率、段落集合 F1 与日期正确率.</p>
+
+<h2 class="sec">8　实验与结果分析</h2>
+<p>评测在测试集中等距抽取的 11 条样本上进行(覆盖各来源), 两版适配器使用相同解码配置, 且均在无其他推理负载的条件下完成; 对个别超长输入按 token 截断至 1450 以内, 保证"输入+生成"不超过 2048 的上下文窗口, 两版处理一致. 需要说明, 评测期间笔记本处于节能供电状态, 显卡运行频率约 0.3~0.6GHz、功耗约 10W, 故耗时数据反映的是极限成本压缩下的真实体验而非硬件上限. 结果如表 1 所示, 第一轮(v1)与第二轮(v2b)的单轮评测耗时分别约 @@V1_SECONDS@@ 秒与 @@V2_SECONDS@@ 秒.</p>
+<table>
+<caption>表 1　两版模型在测试集上的对照结果</caption>
+<tr><th>指标</th><th>v1(未过滤)</th><th>v2b(完整样本过滤)</th></tr>
+@@TABLE_ROWS@@
+</table>
+<p>由表 1 可见, 在 256 token 的生成预算下两版直接可解析率均为 @@V1_DIRECT@@, 说明短预算内模型尚不能独立写出完整 JSON; 完整样本过滤使修复后可用率由 @@V1_USABLE@@ 提升至 @@V2_USABLE@@, 即更多输出至少包含可打捞的标题或段落, 验证了"让模型见过完整收尾"的策略方向. 段落集合 F1 在两版中均为零, 原因是 256 token 不足以覆盖多段落目标, 修复链只能救回标题与首段, 这提示生成预算与目标长度必须匹配, 也解释了第一轮 notebook 中 1024 token 预算下可见多段落输出的现象. 日期正确率有限且存在幻觉, 需靠归一化层置空兜底; 部分样本退化为重复循环, 修复链只能返回空结果. 上述结果与小模型容量上限的判断一致<sup>[11]</sup>: 微调可以大幅加强甚至激活某方面能力, 但模型规模本身仍是隐性上限, 格式保证必须交由规则层.</p>
+<p>工程层面另有一项值得记录的发现: 本环境下 QLoRA 适配器在任何合并导出(16bit/GGUF)后均退化为重复输出, 唯一正常的推理路线是 4bit 运行时挂载适配器. 因此系统放弃 Ollama 加载合并模型的部署方式, 改为本地 4bit 推理服务. 该现象提示量化感知训练所得适配器与反量化合并之间存在兼容性陷阱, 在消费级部署中应以运行时挂载为准.</p>
+
+<h2 class="sec">9　结语与展望</h2>
+<p>本文在 6GB 显存笔记本上完成了数据清洗智能系统从数据构建、QLoRA 训练到推理服务与修复兜底的全流程. 实验表明: 成本极限压缩下, 迁移学习能够在 0.6B 小模型上实现简单任务的专精化, 其综合收益远超单纯提示词引导; 完整样本过滤与正则修复链分别缓解了截断与格式两类幻觉. 同时, 语义幻觉难以避免、合并导出存在兼容陷阱, 个人微调应综合任务、模型、显卡与数据资源合理设定预期.</p>
+<p>后续工作包括: 扩充数据规模并引入人工抽检以抬高语义上限; 探索约束解码在生成期保证格式<sup>[12]</sup>; 研究适配器与量化基座的兼容合并方案; 将系统扩展为多任务适配器插件, 复用同一基座服务更多清洗场景.</p>
+<p class="noindent"><b>代码与数据可用性声明:</b> 本文系统代码、配对数据集、评测结果与报告排版源文件已公开于 GitHub 仓库 https://github.com/num-epochs/- (2026-11-24 访问)<sup>[16]</sup>, 供复现与检验.</p>
+
+<h2 class="sec">References:</h2>
+<div class="refs">
+<p>[1] 唐岸达, 林宙辰. 大模型参数高效微调方法综述: 技术、趋势与挑战[J]. 自动化学报, 2026, 52(8): 1520−1556. [doi: 10.16383/j.aas.c250451]</p>
+<p>[2] Hu EJ, Shen Y, Wallis P, Allen-Zhu Z, Li Y, Wang S, Wang L, Chen W. LoRA: Low-rank adaptation of large language models[C]//Proc. of the Int'l Conf. on Learning Representations (ICLR). 2022.</p>
+<p>[3] Dettmers T, Pagnoni A, Holtzman A, Zettlemoyer L. QLoRA: Efficient finetuning of quantized LLMs[C]//Advances in Neural Information Processing Systems 36 (NeurIPS). 2023.</p>
+<p>[4] Houlsby N, Giurgiu A, Jastrzebski S, Morrone B, de Laroussilhe Q, Gesmundo A, Attariyan M, Gelly S. Parameter-efficient transfer learning for NLP[C]//Proc. of the 36th Int'l Conf. on Machine Learning (ICML). PMLR, 2019. 2790−2799.</p>
+<p>[5] Li XL, Liang P. Prefix-Tuning: Optimizing continuous prompts for generation[C]//Proc. of the 59th Annual Meeting of the Association for Computational Linguistics (ACL). 2021. 4582−4597.</p>
+<p>[6] 吴春志, 赵玉龙, 刘鑫, 司念文, 张鲁飞, 范昊. 大语言模型微调方法研究综述[J]. 中文信息学报, 2025, 39(2): 1−26.</p>
+<p>[7] Yang A, Li A, Yang B, et al. Qwen3 technical report[EB/OL]. arXiv:2505.09388, 2025.</p>
+<p>[8] Vaswani A, Shazeer N, Parmar N, Uszkoreit J, Jones L, Gomez AN, Kaiser Ł, Polosukhin I. Attention is all you need[C]//Advances in Neural Information Processing Systems 30 (NIPS). 2017. 5998−6008.</p>
+<p>[9] Devlin J, Chang MW, Lee K, Toutanova K. BERT: Pre-training of deep bidirectional transformers for language understanding[C]//Proc. of NAACL-HLT. 2019. 4171−4186.</p>
+<p>[10] Brown TB, Mann B, Ryder N, et al. Language models are few-shot learners[C]//Advances in Neural Information Processing Systems 33 (NeurIPS). 2020. 1877−1901.</p>
+<p>[11] Huang L, Yu W, Ma W, et al. A survey on hallucination in large language models: Principles, taxonomy, challenges, and open questions[J]. ACM Transactions on Information Systems, 2025, 43(2): 1−55. [doi: 10.1145/3703155]</p>
+<p>[12] Tam ZR, Wu CK, Tsai YL, Lin CY, Lee Hy, Chen YN. Let me speak freely? A study on the impact of format restrictions on performance of large language models[C]//Proc. of the 2024 Conf. on Empirical Methods in Natural Language Processing: Industry Track (EMNLP). 2024.</p>
+<p>[13] Han Z, Gao C, Liu J, Zhang J, Zhang S. Parameter-efficient fine-tuning for large models: A comprehensive survey[EB/OL]. arXiv:2403.14608, 2024.</p>
+<p>[14] Ollama: Get up and running with large language models locally[CP/OL]. (2026-11-09)[2026-11-22]. https://github.com/ollama/ollama.</p>
+<p>[15] Unsloth: Fast and memory-efficient fine-tuning of large language models[CP/OL]. [2026-11-22]. https://github.com/unslothai/unsloth.</p>
+<p>[16] num-epochs. 网页文本数据清洗智能系统课程项目代码与数据[CP/OL]. (2026-11-24)[2026-11-24]. https://github.com/num-epochs/-.</p>
+</div>
+
+</body>
+</html>

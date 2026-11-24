@@ -1,0 +1,113 @@
+{
+ "summary": {
+  "model": "v1",
+  "n": 11,
+  "seconds": 315,
+  "direct_parse_rate": 0.0,
+  "repaired_usable_rate": 0.273,
+  "title_exact_rate": 0.091,
+  "mean_para_f1": 0.0,
+  "date_ok_rate": 0.364
+ },
+ "per_sample": [
+  {
+   "id": "xinhua-011",
+   "direct": false,
+   "repaired_nonempty": true,
+   "title_exact": false,
+   "para_f1": 0.0,
+   "date_ok": false,
+   "raw_len": 1117
+  },
+  {
+   "id": "chinadaily-006",
+   "direct": false,
+   "repaired_nonempty": false,
+   "title_exact": false,
+   "para_f1": 0.0,
+   "date_ok": false,
+   "raw_len": 704
+  },
+  {
+   "id": "sixthtone-001-aug",
+   "direct": false,
+   "repaired_nonempty": false,
+   "title_exact": false,
+   "para_f1": 0.0,
+   "date_ok": true,
+   "raw_len": 599
+  },
+  {
+   "id": "sixthtone-016",
+   "direct": false,
+   "repaired_nonempty": true,
+   "title_exact": true,
+   "para_f1": 0.0,
+   "date_ok": false,
+   "raw_len": 943
+  },
+  {
+   "id": "hn-000-aug",
+   "direct": false,
+   "repaired_nonempty": false,
+   "title_exact": false,
+   "para_f1": 0.0,
+   "date_ok": false,
+   "raw_len": 473
+  },
+  {
+   "id": "hn-021",
+   "direct": false,
+   "repaired_nonempty": false,
+   "title_exact": false,
+   "para_f1": 0.0,
+   "date_ok": false,
+   "raw_len": 747
+  },
+  {
+   "id": "hn-026",
+   "direct": false,
+   "repaired_nonempty": false,
+   "title_exact": false,
+   "para_f1": 0.0,
+   "date_ok": false,
+   "raw_len": 485
+  },
+  {
+   "id": "hn-048-aug",
+   "direct": false,
+   "repaired_nonempty": false,
+   "title_exact": false,
+   "para_f1": 0.0,
+   "date_ok": false,
+   "raw_len": 424
+  },
+  {
+   "id": "se-023",
+   "direct": false,
+   "repaired_nonempty": false,
+   "title_exact": false,
+   "para_f1": 0.0,
+   "date_ok": true,
+   "raw_len": 452
+  },
+  {
+   "id": "se-030-aug",
+   "direct": false,
+   "repaired_nonempty": false,
+   "title_exact": false,
+   "para_f1": 0.0,
+   "date_ok": true,
+   "raw_len": 442
+  },
+  {
+   "id": "se-047-aug",
+   "direct": false,
+   "repaired_nonempty": true,
+   "title_exact": false,
+   "para_f1": 0.0,
+   "date_ok": true,
+   "raw_len": 962
+  }
+ ]
+}
